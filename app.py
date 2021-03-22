@@ -5,6 +5,7 @@ import os
 app = Flask(__name__)
 db = SQLAlchemy(app)
 app.config['SQLALCHEMY_DATABASE_URI']= 'sqlite:///' + os.path.join(app.root_path, 'data.db')
+
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(20))
@@ -13,9 +14,23 @@ class Movie(db.Model):
     title = db.Column(db.String(60))
     year = db.Column(db.String(4))
 
+#数据库更新
+import click
+@app.cli.command() 
+@click.option('--drop', is_flag=True, help='Create after drop.')
+def initdb(drop):
+    """Initialize the database."""
+    if drop:
+        db.drop_all()
+    db.create_all()
+    click.echo('Initialized database.')
 
+#flask 页面
 @app.route('/')
 def index():
+    user = User.query.first()
+    movie = Movie.query.all()
+    
     name = 'Grey Li'
     movies = [
         {'title': 'My Neighbor Totoro', 'year': '1988'},
@@ -29,7 +44,7 @@ def index():
         {'title': 'WALL-E', 'year': '2008'},
         {'title': 'The Pork of Music', 'year': '2012'},
      ]
-    return render_template('index.html', name=name, movies=movies)
+    return render_template('index.html', name=user.name, movies=movie)
 
 @app.route('/user/<name>')
 def user_page(name):
