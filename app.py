@@ -1,5 +1,18 @@
 from flask import Flask, url_for, render_template
+from flask_sqlalchemy import SQLAlchemy
+import os
+
 app = Flask(__name__)
+db = SQLAlchemy(app)
+app.config['SQLALCHEMY_DATABASE_URI']= 'sqlite:///' + os.path.join(app.root_path, 'data.db')
+class User(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(20))
+class Movie(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(60))
+    year = db.Column(db.String(4))
+
 
 @app.route('/')
 def index():
@@ -21,4 +34,5 @@ def index():
 @app.route('/user/<name>')
 def user_page(name):
     return 'User: %s' % name
+
 
